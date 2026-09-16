@@ -110,6 +110,26 @@ const respondWithStaffStorefrontSession = async (res, req, admin, shopUser) => {
   });
 };
 
+/** Issue admin dashboard tokens when a signed-in customer email matches active staff. */
+const buildLinkedAdminSession = async (req, res, email) => {
+  const admin = await AdminUser.findOne({ where: { email, isActive: true } });
+  if (!admin) return null;
+
+  const adminTokens = await issueTokenPair(
+    { id: admin.id, actorType: 'admin', role: admin.role },
+    req
+  );
+
+  setRefreshCookie(res, 'admin', adminTokens.refreshToken);
+
+  return {
+    admin: serializeAdmin(admin),
+    adminAccessToken: adminTokens.accessToken,
+    adminRefreshToken: adminTokens.refreshToken,
+    permissionModules: PERMISSION_MODULES,
+  };
+};
+
 export const signup = asyncHandler(async (req, res) => {
   const { firstName, lastName, email, phone, password, turnstileToken, marketingOptIn } =
     req.body;
@@ -238,6 +258,15 @@ export const login = asyncHandler(async (req, res) => {
 
   await mergeGuestBasket(user.id, guestBasket);
 
+  const linkedAdmin = await AdminUser.scope('withPassword').findOne({ where: { email: user.email } });
+  if (
+    linkedAdmin &&
+    linkedAdmin.isActive &&
+    (await bcrypt.compare(password, linkedAdmin.passwordHash))
+  ) {
+    return respondWithStaffStorefrontSession(res, req, linkedAdmin, user);
+  }
+
   await respondWithSession(res, req, user);
 });
 
@@ -322,5 +351,13 @@ export const logout = asyncHandler(async (req, res) => {
 });
 
 export const me = asyncHandler(async (req, res) => {
-  res.json({ success: true, data: { user: serializeUser(req.user) } });
+  const linkedAdmin = await buildLinkedAdminSession(req, res, req.user.email);
+
+  res.json({
+    success: true,
+    data: {
+      user: serializeUser(req.user),
+      ...linkedAdmin,
+    },
+  });
 });

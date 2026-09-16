@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { uploadsRoot, toPublicUrl } from '../../middleware/upload.js';
+import { buildMeta } from '../../utils/pagination.js';
 import AppError from '../../utils/AppError.js';
 import asyncHandler from '../../utils/asyncHandler.js';
 
@@ -64,12 +65,7 @@ export const listUploads = asyncHandler(async (req, res) => {
   res.json({
     success: true,
     data: files.slice(offset, offset + limit),
-    meta: {
-      total,
-      page,
-      limit,
-      pages: Math.max(1, Math.ceil(total / limit)),
-    },
+    meta: buildMeta({ count: total, page, limit }),
   });
 });
 
