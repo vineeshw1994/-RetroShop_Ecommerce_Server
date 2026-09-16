@@ -73,8 +73,9 @@ export const listUploads = asyncHandler(async (req, res) => {
   });
 });
 
-/** Upload one or more images straight into uploads/products for bulk imports and forms. */
-export const uploadProductImages = asyncHandler(async (req, res) => {
+/** Upload one or more images into the active uploads folder (set via intoFolder middleware). */
+export const uploadFolderImages = asyncHandler(async (req, res) => {
+  const folder = req.uploadFolder || 'misc';
   const files = Array.isArray(req.files) ? req.files : req.file ? [req.file] : [];
 
   if (!files.length) {
@@ -84,14 +85,17 @@ export const uploadProductImages = asyncHandler(async (req, res) => {
   const uploaded = files.map((file) => ({
     url: toPublicUrl(file),
     name: file.filename,
-    folder: 'products',
+    folder,
     size: file.size,
     updatedAt: new Date().toISOString(),
   }));
 
   res.status(201).json({
     success: true,
-    message: `${uploaded.length} image${uploaded.length === 1 ? '' : 's'} uploaded to products`,
+    message: `${uploaded.length} image${uploaded.length === 1 ? '' : 's'} uploaded to ${folder}`,
     data: uploaded,
   });
 });
+
+/** @deprecated Use uploadFolderImages via /uploads/products route. */
+export const uploadProductImages = uploadFolderImages;

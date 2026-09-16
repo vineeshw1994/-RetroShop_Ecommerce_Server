@@ -44,7 +44,21 @@ router.post(
   can('products:update'),
   intoFolder('products'),
   upload.array('images', 32),
-  uploads.uploadProductImages
+  uploads.uploadFolderImages
+);
+router.post(
+  '/uploads/categories',
+  can('categories:update'),
+  intoFolder('categories'),
+  upload.array('images', 32),
+  uploads.uploadFolderImages
+);
+router.post(
+  '/uploads/banners',
+  can('banners:update'),
+  intoFolder('banners'),
+  upload.array('images', 32),
+  uploads.uploadFolderImages
 );
 
 /* Product import */
