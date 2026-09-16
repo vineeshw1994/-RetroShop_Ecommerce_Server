@@ -119,6 +119,14 @@ router.patch(
 );
 
 /* Categories */
+router.get('/categories/import/template', can('categories:create'), imports.downloadCategoryTemplate);
+router.post(
+  '/categories/import',
+  can('categories:create'),
+  importSpreadsheet.single('file'),
+  imports.importCategories
+);
+
 router.get('/categories', can('categories:view'), paginationQuery, validate, categories.listCategories);
 router.get('/categories/tree', can('categories:view'), categories.getCategoryTree);
 router.post(
