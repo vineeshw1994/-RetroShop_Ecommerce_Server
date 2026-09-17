@@ -39,7 +39,7 @@ const parseBoolean = (value, fallback = true) => {
 };
 
 const parseNumber = (value) => {
-  const raw = cellText(value).replace(/[£$,]/g, '');
+  const raw = cellText(value).replace(/[£$₹,]/g, '');
   if (!raw) return null;
   const numeric = Number(raw);
   return Number.isFinite(numeric) ? numeric : null;
