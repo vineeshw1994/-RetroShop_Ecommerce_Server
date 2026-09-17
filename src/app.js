@@ -49,6 +49,14 @@ app.use((req, res, next) => {
 
 app.use(
   '/api',
+  (req, res, next) => {
+    // Prevent Cloudways/Varnish from caching JSON API responses per Origin.
+    // Cached empty storefront payloads were being served to the live domain.
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    next();
+  },
   rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 1200,

@@ -292,8 +292,8 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
 });
 
 export const listCategories = asyncHandler(async (req, res) => {
-  const categories = await Category.findAll({
-    where: { isActive: true },
+  const roots = await Category.findAll({
+    where: { isActive: true, parentId: null },
     include: [
       {
         model: Category,
@@ -317,17 +317,15 @@ export const listCategories = asyncHandler(async (req, res) => {
   });
   const countMap = new Map(counts.map((row) => [row.categoryId, Number(row.count)]));
 
-  const roots = categories
-    .filter((category) => !category.parentId)
-    .map((category) => ({
-      ...category.toJSON(),
-      productCount: countMap.get(category.id) || 0,
-      children: (category.children || [])
-        .map((child) => ({ ...child.toJSON(), productCount: countMap.get(child.id) || 0 }))
-        .sort((a, b) => a.sortOrder - b.sortOrder),
-    }));
+  const data = roots.map((category) => ({
+    ...category.toJSON(),
+    productCount: countMap.get(category.id) || 0,
+    children: (category.children || [])
+      .map((child) => ({ ...child.toJSON(), productCount: countMap.get(child.id) || 0 }))
+      .sort((a, b) => a.sortOrder - b.sortOrder),
+  }));
 
-  res.json({ success: true, data: roots });
+  res.json({ success: true, data });
 });
 
 export const getCategoryBySlug = asyncHandler(async (req, res) => {
