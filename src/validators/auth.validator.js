@@ -43,6 +43,7 @@ export const signupValidator = [
     .withMessage('Last name is too long'),
   email,
   body('phone')
+    .optional({ checkFalsy: true })
     .trim()
     .matches(/^[+\d][\d\s()-]{6,22}$/)
     .withMessage('Enter a valid phone number'),

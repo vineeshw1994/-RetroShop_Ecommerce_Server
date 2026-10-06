@@ -32,13 +32,16 @@ const config = {
 
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
 
-  smtp: {
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 587,
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-    from: process.env.EMAIL_FROM || 'Retro Shop <noreply@retroshop.dev>',
+  resend: {
+    apiKey: (process.env.RESEND_API_KEY || '').trim(),
+    /** Use onboarding@resend.dev until your own domain is verified in Resend. */
+    fromEmail: (process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev').trim(),
+    fromName: (process.env.RESEND_FROM_NAME || 'Retro Shop').trim(),
   },
+
+  /** Inbox for contact-form notifications (defaults to super admin email). */
+  contactInboxEmail:
+    (process.env.CONTACT_INBOX_EMAIL || process.env.SUPER_ADMIN_EMAIL || 'admin@retroshop.dev').trim(),
 
   turnstile: {
     secretKey: process.env.TURNSTILE_SECRET_KEY || '',

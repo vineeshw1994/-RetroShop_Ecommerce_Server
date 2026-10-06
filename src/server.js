@@ -2,6 +2,7 @@ import app from './app.js';
 import connectDB from './config/db.js';
 import config from './config/index.js';
 import { ensureSuperAdmin } from './seeders/superAdmin.js';
+import { logResendStartup } from './services/email.service.js';
 
 const start = async () => {
   await connectDB();
@@ -9,6 +10,7 @@ const start = async () => {
 
   app.listen(config.port, () => {
     console.log(`API running on http://localhost:${config.port}/api`);
+    logResendStartup();
   });
 };
 

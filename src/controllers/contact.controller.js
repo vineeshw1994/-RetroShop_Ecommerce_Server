@@ -19,7 +19,7 @@ export const submitContact = asyncHandler(async (req, res) => {
     message: message.trim(),
   });
 
-  await sendContactNotification(row, config.smtp.user || config.smtp.from);
+  await sendContactNotification(row, config.contactInboxEmail);
 
   res.status(201).json({
     success: true,

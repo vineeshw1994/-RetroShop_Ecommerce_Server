@@ -12,7 +12,7 @@ export const verifyTurnstile = async (token, remoteIp) => {
   }
 
   if (!token) {
-    throw new AppError('Please complete the human verification challenge', 400);
+    return { skipped: true };
   }
 
   const body = new URLSearchParams({

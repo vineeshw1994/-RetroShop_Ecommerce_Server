@@ -147,7 +147,7 @@ export const signup = asyncHandler(async (req, res) => {
     firstName,
     lastName,
     email,
-    phone,
+    phone: phone || '0000000000',
     passwordHash: await bcrypt.hash(password, SALT_ROUNDS),
     marketingOptIn: Boolean(marketingOptIn),
     isVerified: false,
@@ -245,11 +245,15 @@ export const login = asyncHandler(async (req, res) => {
   }
 
   if (!user.isVerified) {
-    await createOtp(email, 'signup');
+    const otpResult = await createOtp(email, 'signup');
+    const data = { email: user.email, requiresVerification: true };
+    if (config.nodeEnv === 'development' && otpResult.devCode) {
+      data.devOtp = otpResult.devCode;
+    }
     return res.status(403).json({
       success: false,
       message: 'Please verify your email. We have sent you a new code.',
-      data: { email: user.email, requiresVerification: true },
+      data,
     });
   }
 
