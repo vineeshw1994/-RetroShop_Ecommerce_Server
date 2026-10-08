@@ -171,6 +171,20 @@ export const sendStaffInviteEmail = async (email, name, tempPassword) =>
     ),
   });
 
+export const sendSellEnquiryEmail = async (to, { customerName, customerEmail, title, quote, notes }) => {
+  if (!to) return { skipped: true };
+  return deliver({
+    to,
+    subject: `${BRAND} sell enquiry: ${title}`,
+    html: layout(
+      'New sell-to-us enquiry',
+      `<p style="color:#b8c5d9;"><strong style="color:#f4f7fb;">${customerName}</strong> (${customerEmail}) wants to sell <strong style="color:#f4f7fb;">${title}</strong>.</p>
+       <p style="color:#22f0ff;font-size:22px;font-weight:800;">Quoted offer: £${Number(quote || 0).toFixed(2)}</p>
+       <p style="color:#e8eef7;white-space:pre-wrap;">${notes || ''}</p>`
+    ),
+  });
+};
+
 export const sendGameRequestUpdateEmail = async (email, request) =>
   deliver({
     to: email,

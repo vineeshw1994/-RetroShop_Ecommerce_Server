@@ -17,6 +17,8 @@ import { getPagination, buildMeta } from '../utils/pagination.js';
 import { toPublicUrl, removeUpload } from '../middleware/upload.js';
 import AppError from '../utils/AppError.js';
 import asyncHandler from '../utils/asyncHandler.js';
+import config from '../config/index.js';
+import { sendSellEnquiryEmail } from '../services/email.service.js';
 
 const SALT_ROUNDS = 12;
 
@@ -282,9 +284,18 @@ export const createGameRequest = asyncHandler(async (req, res) => {
     notes: req.body.notes || null,
   });
 
+  const customerName = [req.user.firstName, req.user.lastName].filter(Boolean).join(' ') || req.user.email;
+  await sendSellEnquiryEmail(config.contactInboxEmail, {
+    customerName,
+    customerEmail: req.user.email,
+    title: request.title,
+    quote: request.maxBudget,
+    notes: request.notes,
+  });
+
   res.status(201).json({
     success: true,
-    message: 'Request sent. We will let you know as soon as we can source it.',
+    message: 'Offer submitted. We will verify condition and email next steps.',
     data: request,
   });
 });
